@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/yahao333/hashtool/internal/hash"
@@ -35,6 +36,13 @@ type VerifyRequest struct {
 type VerifyResponse struct {
 	Valid     bool   `json:"valid"`
 	Algorithm string `json:"algorithm"`
+}
+
+// HealthResponse represents the response structure for health check
+type HealthResponse struct {
+	Status    string `json:"status"`
+	Timestamp string `json:"timestamp"`
+	Version   string `json:"version"`
 }
 
 // ErrorResponse represents error response structure
@@ -133,6 +141,23 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// HealthHandler handles health check requests
+func HealthHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	response := HealthResponse{
+		Status:    "ok",
+		Timestamp: time.Now().UTC().Format(time.RFC3339),
+		Version:   "1.0.0",
+	}
+
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		return
+	}
+}
+
 // SetupRoutes configures and returns the HTTP router
 func SetupRoutes() *mux.Router {
 	r := mux.NewRouter()
@@ -144,12 +169,7 @@ func SetupRoutes() *mux.Router {
 	api := r.PathPrefix("/api").Subrouter()
 	api.HandleFunc("/hash", GenerateHashHandler).Methods("POST")
 	api.HandleFunc("/verify", VerifyHashHandler).Methods("POST")
-
-	// Health check endpoint
-	r.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
-	}).Methods("GET")
+	api.HandleFunc("/health", HealthHandler).Methods("GET")
 
 	return r
 }
