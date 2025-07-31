@@ -44,26 +44,3 @@ hashtool server --port 8080
 
 ## License
 MIT License
-```
-
-### 项目结构建议
-```
-hashtool/
-├── README.md
-├── LICENSE
-├── go.mod
-├── go.sum
-├── main.go
-├── cmd/
-│   ├── cli.go
-│   └── server.go
-├── internal/
-│   ├── hash/
-│   │   └── hash.go
-│   └── web/
-│       └── handlers.go
-├── api/
-│   └── api.go
-└── examples/
-    └── usage.md
-```
