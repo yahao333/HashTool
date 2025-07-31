@@ -2,7 +2,9 @@ package web
 
 import (
 	"encoding/json"
+	"html/template"
 	"net/http"
+	"path/filepath"
 	"strings"
 
 	"github.com/gorilla/mux"
@@ -112,9 +114,31 @@ func VerifyHashHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
+// IndexHandler serves the main web interface
+func IndexHandler(w http.ResponseWriter, r *http.Request) {
+	// Get the template file path
+	tmplPath := filepath.Join("templates", "index.html")
+	
+	// Parse and execute the template
+	tmpl, err := template.ParseFiles(tmplPath)
+	if err != nil {
+		http.Error(w, "Template not found", http.StatusInternalServerError)
+		return
+	}
+	
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := tmpl.Execute(w, nil); err != nil {
+		http.Error(w, "Template execution error", http.StatusInternalServerError)
+		return
+	}
+}
+
 // SetupRoutes configures and returns the HTTP router
 func SetupRoutes() *mux.Router {
 	r := mux.NewRouter()
+
+	// Web interface
+	r.HandleFunc("/", IndexHandler).Methods("GET")
 
 	// API routes
 	api := r.PathPrefix("/api").Subrouter()
