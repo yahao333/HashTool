@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HashTool - 哈希工具测试页面</title>
+    <title>HashTool - Hash Utility Test Page</title>
     <style>
         * {
             margin: 0;
@@ -159,18 +159,44 @@
             font-weight: 600;
             color: #1976d2;
         }
+        
+        .language-switch {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 25px;
+            padding: 8px 16px;
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .language-switch:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .header {
+            position: relative;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
+            <div class="language-switch" onclick="toggleLanguage()">
+                <span id="langBtn">中文</span>
+            </div>
             <h1>🔐 HashTool</h1>
-            <p>哈希工具 - 生成和验证哈希值的在线工具</p>
+            <p id="headerDesc">Hash Utility - Online tool for generating and verifying hash values</p>
         </div>
         
         <div class="content">
             <div class="algorithm-info">
-                <h3>📋 支持的算法</h3>
+                <h3 id="algorithmTitle">📋 Supported Algorithms</h3>
                 <div class="algorithm-list">
                     <div class="algorithm-item">MD5</div>
                     <div class="algorithm-item">SHA1</div>
@@ -179,50 +205,50 @@
                 </div>
             </div>
             
-            <!-- 哈希生成部分 -->
+            <!-- Hash Generation Section -->
             <div class="section">
-                <h2>🔨 生成哈希</h2>
+                <h2 id="hashTitle">🔨 Generate Hash</h2>
                 <form id="hashForm">
                     <div class="form-group">
-                        <label for="hashText">输入文本:</label>
-                        <textarea id="hashText" placeholder="请输入要生成哈希的文本..." required></textarea>
+                        <label for="hashText" id="hashTextLabel">Input Text:</label>
+                        <textarea id="hashText" placeholder="Please enter text to generate hash..." required></textarea>
                     </div>
                     <div class="form-group">
-                        <label for="hashAlgorithm">选择算法:</label>
+                        <label for="hashAlgorithm" id="hashAlgorithmLabel">Select Algorithm:</label>
                         <select id="hashAlgorithm" required>
-                            <option value="sha1">SHA1 (默认)</option>
+                            <option value="sha1" id="hashSha1Option">SHA1 (Default)</option>
                             <option value="md5">MD5</option>
                             <option value="sha256">SHA256</option>
                             <option value="sha512">SHA512</option>
                         </select>
                     </div>
-                    <button type="submit">生成哈希</button>
+                    <button type="submit" id="hashSubmitBtn">Generate Hash</button>
                 </form>
                 <div id="hashResult" class="result" style="display: none;"></div>
             </div>
             
-            <!-- 哈希验证部分 -->
+            <!-- Hash Verification Section -->
             <div class="section">
-                <h2>✅ 验证哈希</h2>
+                <h2 id="verifyTitle">✅ Verify Hash</h2>
                 <form id="verifyForm">
                     <div class="form-group">
-                        <label for="verifyText">原始文本:</label>
-                        <textarea id="verifyText" placeholder="请输入原始文本..." required></textarea>
+                        <label for="verifyText" id="verifyTextLabel">Original Text:</label>
+                        <textarea id="verifyText" placeholder="Please enter original text..." required></textarea>
                     </div>
                     <div class="form-group">
-                        <label for="verifyHash">哈希值:</label>
-                        <input type="text" id="verifyHash" placeholder="请输入要验证的哈希值..." required>
+                        <label for="verifyHash" id="verifyHashLabel">Hash Value:</label>
+                        <input type="text" id="verifyHash" placeholder="Please enter hash value to verify..." required>
                     </div>
                     <div class="form-group">
-                        <label for="verifyAlgorithm">选择算法:</label>
+                        <label for="verifyAlgorithm" id="verifyAlgorithmLabel">Select Algorithm:</label>
                         <select id="verifyAlgorithm" required>
-                            <option value="sha1">SHA1 (默认)</option>
+                            <option value="sha1" id="verifySha1Option">SHA1 (Default)</option>
                             <option value="md5">MD5</option>
                             <option value="sha256">SHA256</option>
                             <option value="sha512">SHA512</option>
                         </select>
                     </div>
-                    <button type="submit">验证哈希</button>
+                    <button type="submit" id="verifySubmitBtn">Verify Hash</button>
                 </form>
                 <div id="verifyResult" class="result" style="display: none;"></div>
             </div>
@@ -230,7 +256,103 @@
     </div>
     
     <script>
-        // 生成哈希
+        // Language definitions
+        const languages = {
+            en: {
+                langBtn: '中文',
+                headerDesc: 'Hash Utility - Online tool for generating and verifying hash values',
+                algorithmTitle: '📋 Supported Algorithms',
+                hashTitle: '🔨 Generate Hash',
+                hashTextLabel: 'Input Text:',
+                hashTextPlaceholder: 'Please enter text to generate hash...',
+                hashAlgorithmLabel: 'Select Algorithm:',
+                hashSha1Option: 'SHA1 (Default)',
+                hashSubmitBtn: 'Generate Hash',
+                verifyTitle: '✅ Verify Hash',
+                verifyTextLabel: 'Original Text:',
+                verifyTextPlaceholder: 'Please enter original text...',
+                verifyHashLabel: 'Hash Value:',
+                verifyHashPlaceholder: 'Please enter hash value to verify...',
+                verifyAlgorithmLabel: 'Select Algorithm:',
+                verifySha1Option: 'SHA1 (Default)',
+                verifySubmitBtn: 'Verify Hash',
+                hashSuccess: '✅ Hash generated successfully!',
+                verifySuccess: '✅ Verification successful!',
+                verifyFailed: '❌ Verification failed!',
+                algorithm: 'Algorithm:',
+                hashValue: 'Hash Value:',
+                result: 'Result:',
+                hashMatched: 'Hash matched',
+                hashNotMatched: 'Hash not matched',
+                error: '❌ Error:',
+                networkError: '❌ Network Error:'
+            },
+            zh: {
+                langBtn: 'English',
+                headerDesc: '哈希工具 - 生成和验证哈希值的在线工具',
+                algorithmTitle: '📋 支持的算法',
+                hashTitle: '🔨 生成哈希',
+                hashTextLabel: '输入文本:',
+                hashTextPlaceholder: '请输入要生成哈希的文本...',
+                hashAlgorithmLabel: '选择算法:',
+                hashSha1Option: 'SHA1 (默认)',
+                hashSubmitBtn: '生成哈希',
+                verifyTitle: '✅ 验证哈希',
+                verifyTextLabel: '原始文本:',
+                verifyTextPlaceholder: '请输入原始文本...',
+                verifyHashLabel: '哈希值:',
+                verifyHashPlaceholder: '请输入要验证的哈希值...',
+                verifyAlgorithmLabel: '选择算法:',
+                verifySha1Option: 'SHA1 (默认)',
+                verifySubmitBtn: '验证哈希',
+                hashSuccess: '✅ 哈希生成成功!',
+                verifySuccess: '✅ 验证成功!',
+                verifyFailed: '❌ 验证失败!',
+                algorithm: '算法:',
+                hashValue: '哈希值:',
+                result: '结果:',
+                hashMatched: '哈希值匹配',
+                hashNotMatched: '哈希值不匹配',
+                error: '❌ 错误:',
+                networkError: '❌ 网络错误:'
+            }
+        };
+        
+        let currentLang = 'en';
+        
+        // Toggle language function
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'zh' : 'en';
+            updateLanguage();
+        }
+        
+        // Update language function
+        function updateLanguage() {
+            const lang = languages[currentLang];
+            document.documentElement.lang = currentLang === 'zh' ? 'zh-CN' : 'en';
+            document.title = currentLang === 'zh' ? 'HashTool - 哈希工具测试页面' : 'HashTool - Hash Utility Test Page';
+            
+            // Update all text elements
+            document.getElementById('langBtn').textContent = lang.langBtn;
+            document.getElementById('headerDesc').textContent = lang.headerDesc;
+            document.getElementById('algorithmTitle').textContent = lang.algorithmTitle;
+            document.getElementById('hashTitle').textContent = lang.hashTitle;
+            document.getElementById('hashTextLabel').textContent = lang.hashTextLabel;
+            document.getElementById('hashText').placeholder = lang.hashTextPlaceholder;
+            document.getElementById('hashAlgorithmLabel').textContent = lang.hashAlgorithmLabel;
+            document.getElementById('hashSha1Option').textContent = lang.hashSha1Option;
+            document.getElementById('hashSubmitBtn').textContent = lang.hashSubmitBtn;
+            document.getElementById('verifyTitle').textContent = lang.verifyTitle;
+            document.getElementById('verifyTextLabel').textContent = lang.verifyTextLabel;
+            document.getElementById('verifyText').placeholder = lang.verifyTextPlaceholder;
+            document.getElementById('verifyHashLabel').textContent = lang.verifyHashLabel;
+            document.getElementById('verifyHash').placeholder = lang.verifyHashPlaceholder;
+            document.getElementById('verifyAlgorithmLabel').textContent = lang.verifyAlgorithmLabel;
+            document.getElementById('verifySha1Option').textContent = lang.verifySha1Option;
+            document.getElementById('verifySubmitBtn').textContent = lang.verifySubmitBtn;
+        }
+        
+        // Generate hash
         document.getElementById('hashForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
@@ -253,19 +375,22 @@
                 const data = await response.json();
                 
                 if (response.ok) {
+                    const lang = languages[currentLang];
                     resultDiv.className = 'result success';
                     resultDiv.innerHTML = `
-                        <strong>✅ 哈希生成成功!</strong><br>
-                        <strong>算法:</strong> ${data.algorithm.toUpperCase()}<br>
-                        <strong>哈希值:</strong> ${data.hash}
+                        <strong>${lang.hashSuccess}</strong><br>
+                        <strong>${lang.algorithm}</strong> ${data.algorithm.toUpperCase()}<br>
+                        <strong>${lang.hashValue}</strong> ${data.hash}
                     `;
                 } else {
+                    const lang = languages[currentLang];
                     resultDiv.className = 'result error';
-                    resultDiv.innerHTML = `<strong>❌ 错误:</strong> ${data.error}`;
+                    resultDiv.innerHTML = `<strong>${lang.error}</strong> ${data.error}`;
                 }
             } catch (error) {
+                const lang = languages[currentLang];
                 resultDiv.className = 'result error';
-                resultDiv.innerHTML = `<strong>❌ 网络错误:</strong> ${error.message}`;
+                resultDiv.innerHTML = `<strong>${lang.networkError}</strong> ${error.message}`;
             }
             
             resultDiv.style.display = 'block';
@@ -296,28 +421,31 @@
                 const data = await response.json();
                 
                 if (response.ok) {
+                    const lang = languages[currentLang];
                     if (data.valid) {
                         resultDiv.className = 'result success';
                         resultDiv.innerHTML = `
-                            <strong>✅ 验证成功!</strong><br>
-                            <strong>算法:</strong> ${data.algorithm.toUpperCase()}<br>
-                            <strong>结果:</strong> 哈希值匹配
+                            <strong>${lang.verifySuccess}</strong><br>
+                            <strong>${lang.algorithm}</strong> ${data.algorithm.toUpperCase()}<br>
+                            <strong>${lang.result}</strong> ${lang.hashMatched}
                         `;
                     } else {
                         resultDiv.className = 'result error';
                         resultDiv.innerHTML = `
-                            <strong>❌ 验证失败!</strong><br>
-                            <strong>算法:</strong> ${data.algorithm.toUpperCase()}<br>
-                            <strong>结果:</strong> 哈希值不匹配
+                            <strong>${lang.verifyFailed}</strong><br>
+                            <strong>${lang.algorithm}</strong> ${data.algorithm.toUpperCase()}<br>
+                            <strong>${lang.result}</strong> ${lang.hashNotMatched}
                         `;
                     }
                 } else {
+                    const lang = languages[currentLang];
                     resultDiv.className = 'result error';
-                    resultDiv.innerHTML = `<strong>❌ 错误:</strong> ${data.error}`;
+                    resultDiv.innerHTML = `<strong>${lang.error}</strong> ${data.error}`;
                 }
             } catch (error) {
+                const lang = languages[currentLang];
                 resultDiv.className = 'result error';
-                resultDiv.innerHTML = `<strong>❌ 网络错误:</strong> ${error.message}`;
+                resultDiv.innerHTML = `<strong>${lang.networkError}</strong> ${error.message}`;
             }
             
             resultDiv.style.display = 'block';
