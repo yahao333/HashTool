@@ -1,6 +1,10 @@
 **HashTool** / **哈希工具**
 
+[English](README.md) | [中文](README.cn.md)
+
 **HashTool - A Comprehensive Hash Utility**
+
+![HashTool Screenshot](Screenshot.png)
 
 HashTool is a versatile hash utility that provides both command-line interface (CLI) and web service capabilities. This tool supports multiple hash algorithms and offers an easy-to-use interface for generating and verifying hash values.
 
